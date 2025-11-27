@@ -1,0 +1,211 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                   HOW TO VIEW SUBMITTED LOAN DETAILS                          ║
+║                        Quick Reference Guide                                  ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 1: WEB INTERFACE (EASIEST) ⭐                                          │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Step 1: Open your browser and go to:
+        → http://127.0.0.1:5000
+
+Step 2: Login with your credentials:
+        Regular User Example:
+        → Email: john.doe@example.com
+        → Password: password123
+        
+        OR Demo User (to see ALL applications):
+        → Email: kit27.ad05@gmail.com
+        → Password: kit@123
+
+Step 3: After login, look at the TOP NAVIGATION BAR
+        You will see:
+        
+        For Regular Users:
+        ┌─────────────────────────────────────────────────────┐
+        │ [User Icon] your@email.com  [My Applications] [Logout] │
+        └─────────────────────────────────────────────────────┘
+        
+        For Demo User:
+        ┌─────────────────────────────────────────────────────┐
+        │ [User Icon] kit27.ad05@gmail.com  [View All Data] [Logout] │
+        └─────────────────────────────────────────────────────┘
+
+Step 4: Click on "My Applications" or "View All Data"
+
+Step 5: You will see a beautiful dashboard with:
+        ✓ Statistics cards (Approved, Rejected, Total Amount)
+        ✓ Complete table of all loan applications
+        ✓ Color-coded status badges
+        ✓ Document counts
+        ✓ Application dates
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ DIRECT URL ACCESS                                                             │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+After logging in, directly visit:
+→ http://127.0.0.1:5000/loan_data
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 2: PYTHON SCRIPTS (FOR DEVELOPERS) 💻                                 │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Option A: View Database Script
+──────────────────────────────
+Open terminal in project folder and run:
+
+    python view_database.py
+
+Output shows:
+    ✓ All registered users
+    ✓ All loan applications
+    ✓ Summary statistics
+    ✓ Loan type breakdown
+    ✓ Total approved amounts
+
+
+Option B: Database Manager Script
+──────────────────────────────────
+Open terminal in project folder and run:
+
+    python database_manager.py
+
+Output shows:
+    ✓ Database statistics
+    ✓ User list
+    ✓ Loan applications
+    ✓ Approval/rejection counts
+    ✓ Creates demo data
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 3: DIRECT DATABASE ACCESS (ADVANCED) 🔧                               │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Using Python:
+─────────────
+Create a file (e.g., check_loans.py) with:
+
+    import sqlite3
+    
+    conn = sqlite3.connect('loan_verification.db')
+    cursor = conn.cursor()
+    
+    # View all loans
+    cursor.execute('SELECT * FROM loans ORDER BY created_at DESC')
+    loans = cursor.fetchall()
+    
+    for loan in loans:
+        print(f"ID: {loan[0]}, Email: {loan[1]}, Type: {loan[2]}, "
+              f"Amount: ₹{loan[3]}, Status: {loan[6]}")
+    
+    conn.close()
+
+Then run: python check_loans.py
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ WHAT YOU WILL SEE                                                             │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Loan Application Details Include:
+──────────────────────────────────
+├─ ID: Unique application number
+├─ Email: User's email address
+├─ Loan Type: Agriculture/Home/Education/Business
+├─ Amount: Requested loan amount (₹)
+├─ Income: Monthly income (₹)
+├─ Liabilities: Number of existing loans
+├─ Status: ✅ Approved or ❌ Rejected
+├─ Reason: Explanation for decision
+├─ Documents: List of uploaded files
+└─ Date: When application was submitted
+
+
+Statistics Dashboard Shows:
+────────────────────────────
+┌──────────────┬──────────────┬──────────────┬──────────────┐
+│   Approved   │   Rejected   │ Total Amount │  Avg Amount  │
+│      8       │      8       │  ₹4,950,000  │  ₹309,375    │
+└──────────────┴──────────────┴──────────────┴──────────────┘
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ USER PERMISSIONS                                                              │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Regular Users:
+    ✓ Can view ONLY their own loan applications
+    ✓ See their application history
+    ✓ Check approval/rejection status
+    ✓ View reasons for decisions
+
+Demo User (kit27.ad05@gmail.com):
+    ✓ Can view ALL loan applications from ALL users
+    ✓ See complete database statistics
+    ✓ Access admin-level data
+    ✓ View all user applications
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ CURRENT DATABASE STATUS                                                       │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+📊 Total Users: 15
+📊 Total Applications: 16
+✅ Approved: 8
+❌ Rejected: 8
+💰 Total Approved Amount: ₹4,950,000
+
+Loan Types:
+    🌾 Agriculture: 11 applications
+    🎓 Education: 3 applications
+    🏠 Home: 2 applications
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ QUICK REFERENCE COMMANDS                                                      │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+View all data:              python view_database.py
+Manage database:            python database_manager.py
+Check database status:      python check_db.py
+Start web application:      python app.py
+Open in browser:            http://127.0.0.1:5000/loan_data
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                                               │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Problem: Can't see loan data page
+Solution: Make sure you are logged in first
+
+Problem: See "Access denied"
+Solution: Login with valid credentials
+
+Problem: No applications showing
+Solution: Submit a loan application first, then check again
+
+Problem: Want to see all applications
+Solution: Login as demo user (kit27.ad05@gmail.com / kit@123)
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│ SAMPLE TEST USERS                                                             │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+Email: john.doe@example.com          Password: password123
+Email: jane.smith@example.com        Password: secure456
+Email: mike.wilson@example.com       Password: mypass789
+Email: sarah.jones@example.com       Password: safepass321
+Email: kit27.ad05@gmail.com          Password: kit@123 (Demo/Admin)
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           ✅ ALL SYSTEMS OPERATIONAL                          ║
+║                    Your loan data is safely stored and accessible!            ║
+╚═══════════════════════════════════════════════════════════════════════════════╝

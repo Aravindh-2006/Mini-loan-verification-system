@@ -1,0 +1,145 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    COPY & PASTE SETUP GUIDE                                ║
+║                    Follow these 3 simple steps                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: SETUP DATABASE (Copy & Paste SQL)                                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+1. Open your Supabase project:
+   👉 https://bqvudmjhsvaiudwwlxgn.supabase.co
+
+2. Click: SQL Editor (left sidebar)
+
+3. Click: New Query
+
+4. Open file: supabase_setup.sql
+
+5. Select ALL content (Ctrl+A)
+
+6. Copy (Ctrl+C)
+
+7. Paste in Supabase SQL Editor (Ctrl+V)
+
+8. Click: RUN (or press Ctrl+Enter)
+
+9. Wait for: "Success. No rows returned"
+
+✅ DONE! Database is ready!
+
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: CREATE STORAGE BUCKET                                             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+1. In Supabase, click: Storage (left sidebar)
+
+2. Click: "Create a new bucket"
+
+3. Bucket name: loan-documents
+
+4. ⚠️ IMPORTANT: Keep "Public bucket" UNCHECKED
+
+5. Click: "Create bucket"
+
+✅ DONE! Storage is ready!
+
+
+┌────────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: RUN SETUP COMMANDS (Copy & Paste in Terminal)                     │
+└────────────────────────────────────────────────────────────────────────────┘
+
+Open terminal in project folder and run these commands:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ COPY THIS ↓                                                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│ ren ".env.production" ".env"                                            │
+│ pip install -r requirements.txt                                         │
+│ python app.py                                                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+✅ DONE! Application is running!
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                           TEST YOUR APP                                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+1. Open browser: http://127.0.0.1:5000
+
+2. Login with:
+   Email: kit27.ad05@gmail.com
+   Password: kit@123
+
+3. Try submitting a loan application!
+
+✅ SUCCESS! Everything is working!
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                         YOUR CREDENTIALS                                   ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Supabase URL:
+https://bqvudmjhsvaiudwwlxgn.supabase.co
+
+Supabase API Key:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxdnVkbWpoc3ZhaXVkd3dseGduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzMTk5NTUsImV4cCI6MjA3Nzg5NTk1NX0.QHqmfuZtzsvQQCQGRyN8t3DvCHK0nb0SYttnI25_cs0
+
+Storage Bucket:
+loan-documents
+
+⚠️ Keep these credentials SECRET! Never share publicly!
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                         QUICK REFERENCE                                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📁 Files to use:
+   ✓ supabase_setup.sql     → Copy to Supabase SQL Editor
+   ✓ .env.production        → Rename to .env
+   ✓ setup.bat              → Run for automated setup
+
+📚 Documentation:
+   ✓ README_SUPABASE.md     → Main readme
+   ✓ SETUP_INSTRUCTIONS.txt → Detailed steps
+   ✓ QUICK_START.md         → Quick guide
+
+🔧 Commands:
+   ✓ python app.py          → Start application
+   ✓ python supabase_manager.py → Test connection
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                         TROUBLESHOOTING                                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Problem: "Supabase credentials not found"
+Fix: Run → ren ".env.production" ".env"
+
+Problem: "relation 'users' does not exist"
+Fix: Copy supabase_setup.sql to Supabase SQL Editor and run it
+
+Problem: "Storage bucket not found"
+Fix: Create bucket 'loan-documents' in Supabase Storage
+
+Problem: "Module not found: supabase"
+Fix: Run → pip install -r requirements.txt
+
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    THAT'S IT! YOU'RE DONE! 🎉                              ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Your loan verification system is now running on Supabase!
+
+✅ Scalable database
+✅ Cloud file storage
+✅ Automatic backups
+✅ Production ready
+
+Start building! 🚀
+
