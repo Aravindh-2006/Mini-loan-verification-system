@@ -79,53 +79,79 @@ ALTER TABLE loans ENABLE ROW LEVEL SECURITY;
 -- 5. CREATE RLS POLICIES FOR USERS TABLE
 -- ============================================
 
+-- Drop existing policies to ensure the script is re-runnable
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
+DROP POLICY IF EXISTS "Anyone can signup" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+
 -- Policy: Users can read their own data
+-- We will allow broader select access as the backend service will handle user lookups.
 CREATE POLICY "Users can view own profile" ON users
-    FOR SELECT
-    USING (true);
+    FOR SELECT USING (true);
 
 -- Policy: Anyone can insert (for signup)
 CREATE POLICY "Anyone can signup" ON users
-    FOR INSERT
-    WITH CHECK (true);
+    FOR INSERT WITH CHECK (true);
 
 -- Policy: Users can update their own data
+-- The application does not use this, but we'll scope it to the user's email.
 CREATE POLICY "Users can update own profile" ON users
-    FOR UPDATE
-    USING (email = current_setting('request.jwt.claims', true)::json->>'email');
+    FOR UPDATE USING (auth.email() = email);
 
 -- ============================================
 -- 6. CREATE RLS POLICIES FOR LOANS TABLE
 -- ============================================
 
--- Policy: Users can view their own loans
-CREATE POLICY "Users can view own loans" ON loans
-    FOR SELECT
-    USING (email = current_setting('request.jwt.claims', true)::json->>'email' OR true);
+-- Drop existing policies to ensure the script is re-runnable
+DROP POLICY IF EXISTS "Users can view own loans" ON loans;
+DROP POLICY IF EXISTS "Users can create own loans" ON loans;
+DROP POLICY IF EXISTS "Users can update own loans" ON loans;
+DROP POLICY IF EXISTS "Users can delete own loans" ON loans;
 
--- Policy: Demo user can view all loans
-CREATE POLICY "Demo user can view all loans" ON loans
-    FOR SELECT
-    USING (
-        current_setting('request.jwt.claims', true)::json->>'email' = 'kit27.ad05@gmail.com'
-        OR email = current_setting('request.jwt.claims', true)::json->>'email'
-        OR true
-    );
+-- Policy: Allow service to read loans. The app logic filters by user.
+CREATE POLICY "Users can view own loans" ON loans
+    FOR SELECT USING (true);
 
 -- Policy: Users can insert their own loans
 CREATE POLICY "Users can create own loans" ON loans
-    FOR INSERT
-    WITH CHECK (true);
+    FOR INSERT WITH CHECK (true);
 
 -- Policy: Users can update their own loans
 CREATE POLICY "Users can update own loans" ON loans
-    FOR UPDATE
-    USING (email = current_setting('request.jwt.claims', true)::json->>'email' OR true);
+    FOR UPDATE USING (true);
 
 -- Policy: Users can delete their own loans
 CREATE POLICY "Users can delete own loans" ON loans
-    FOR DELETE
-    USING (email = current_setting('request.jwt.claims', true)::json->>'email' OR true);
+    FOR DELETE USING (true);
+
+-- ============================================
+-- 6.5. CREATE STORAGE POLICIES
+-- ============================================
+
+-- Drop existing policies to ensure the script is re-runnable
+DROP POLICY IF EXISTS "Public insert for loan-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public select for loan-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public update for loan-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public delete for loan-documents" ON storage.objects;
+
+-- Allow public access to the 'loan-documents' bucket for development.
+-- This allows the backend to upload and manage files.
+
+CREATE POLICY "Public insert for loan-documents"
+ON storage.objects FOR INSERT TO public
+WITH CHECK (bucket_id = 'loan-documents');
+
+CREATE POLICY "Public select for loan-documents"
+ON storage.objects FOR SELECT TO public
+USING (bucket_id = 'loan-documents');
+
+CREATE POLICY "Public update for loan-documents"
+ON storage.objects FOR UPDATE TO public
+USING (bucket_id = 'loan-documents');
+
+CREATE POLICY "Public delete for loan-documents"
+ON storage.objects FOR DELETE TO public
+USING (bucket_id = 'loan-documents');
 
 -- ============================================
 -- 7. CREATE HELPFUL VIEWS (OPTIONAL)
@@ -251,7 +277,7 @@ FROM loans;
 -- ✅ Demo user inserted: kit27.ad05@gmail.com
 -- ✅ Row Level Security enabled
 -- ✅ RLS Policies created
--- ✅ Views created for analytics
+-- ✅ Storage policies created
 -- ✅ Helper functions created
 -- ✅ Permissions granted
 --

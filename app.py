@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 import re
 import hashlib
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from supabase_manager import SupabaseManager
 import io
@@ -129,12 +130,6 @@ def login():
             flash('Incorrect Google password', 'error')
     
     return render_template('login.html')
-
-def is_valid_gmail(email):
-    """Validate if email is a valid Gmail address"""
-    import re
-    gmail_pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$'
-    return re.match(gmail_pattern, email) is not None
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -457,6 +452,96 @@ def api_generate_risk_story():
         f"{suggestion}"
     )
     return jsonify({'story': story})
+
+@app.route('/api/generate_repayment_story', methods=['POST'])
+def api_generate_repayment_story():
+    """
+    Generates a narrative story about the loan repayment schedule, including
+    EMI, total interest, and the final payment date.
+    """
+    data = request.get_json(silent=True) or request.form
+    try:
+        loan_amount = float(data.get('loan_amount', 0))
+        annual_rate = float(data.get('interest_rate', 0))
+        tenure_months = int(data.get('tenure_months', 0))
+
+        if not all([loan_amount > 0, annual_rate > 0, tenure_months > 0]):
+            return jsonify({'story': 'Please provide a valid loan amount, interest rate, and tenure.'})
+
+        # EMI Calculation
+        monthly_rate = annual_rate / 12 / 100
+        
+        if monthly_rate > 0:
+            emi = (loan_amount * monthly_rate * (1 + monthly_rate)**tenure_months) / ((1 + monthly_rate)**tenure_months - 1)
+        else:
+            emi = loan_amount / tenure_months
+
+        total_payment = emi * tenure_months
+        total_interest = total_payment - loan_amount
+
+        # Calculate last payment date
+        # We use timedelta which is simpler than dateutil for this purpose
+        # Approximate months as 30.44 days on average
+        end_date = datetime.now() + timedelta(days=tenure_months * 30.44)
+        last_payment_date = end_date.strftime('%B %Y') # e.g., "November 2029"
+
+        # Construct the story
+        story = (
+            f"For a loan of ₹{loan_amount:,.2f} with a tenure of {tenure_months} months at {annual_rate}% interest, "
+            f"your estimated monthly payment (EMI) will be approximately ₹{emi:,.2f}. "
+            f"Over the entire loan period, you will pay a total of ₹{total_payment:,.2f}, "
+            f"which includes ₹{total_interest:,.2f} in interest. "
+            f"Your payments will continue for {tenure_months} months, with your final payment expected around {last_payment_date}. "
+            "This helps you plan your finances for the long term."
+        )
+        
+        return jsonify({'story': story})
+
+    except (ValueError, TypeError):
+        return jsonify({'story': 'Invalid input. Please ensure all values are correct numbers.'})
+    except Exception as e:
+        print(f"Error in repayment story generation: {e}")
+        return jsonify({'story': 'An unexpected error occurred while generating the repayment details.'})
+
+
+@app.route('/emi_calculator', methods=['GET', 'POST'])
+def emi_calculator():
+    """EMI Calculator page"""
+    if 'email' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        try:
+            principal = float(request.form['principal'])
+            annual_rate = float(request.form['rate'])
+            tenure_years = int(request.form['tenure'])
+
+            # Convert to monthly rate and tenure
+            monthly_rate = annual_rate / 12 / 100
+            tenure_months = tenure_years * 12
+
+            # Calculate EMI
+            if monthly_rate > 0:
+                emi = (principal * monthly_rate * (1 + monthly_rate)**tenure_months) / ((1 + monthly_rate)**tenure_months - 1)
+            else: # Handle zero interest rate
+                emi = principal / tenure_months
+
+            total_payment = emi * tenure_months
+            total_interest = total_payment - principal
+
+            return render_template(
+                'emi_calculator.html', 
+                emi=f'{emi:,.2f}', 
+                principal=principal, 
+                rate=annual_rate, 
+                tenure=tenure_years,
+                total_payment=f'{total_payment:,.2f}',
+                total_interest=f'{total_interest:,.2f}'
+            )
+        except (ValueError, ZeroDivisionError) as e:
+            flash(f'Invalid input. Please enter valid numbers. Error: {e}', 'error')
+
+    return render_template('emi_calculator.html')
 
 @app.route('/loan_data')
 def loan_data():

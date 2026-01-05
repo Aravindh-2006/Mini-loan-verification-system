@@ -53,58 +53,29 @@ After logging in, directly visit:
 │ METHOD 2: PYTHON SCRIPTS (FOR DEVELOPERS) 💻                                 │
 └───────────────────────────────────────────────────────────────────────────────┘
 
-Option A: View Database Script
-──────────────────────────────
+This script connects to your Supabase project and displays live statistics.
 Open terminal in project folder and run:
 
-    python view_database.py
+    python supabase_manager.py
 
 Output shows:
-    ✓ All registered users
-    ✓ All loan applications
-    ✓ Summary statistics
-    ✓ Loan type breakdown
-    ✓ Total approved amounts
-
-
-Option B: Database Manager Script
-──────────────────────────────────
-Open terminal in project folder and run:
-
-    python database_manager.py
-
-Output shows:
-    ✓ Database statistics
-    ✓ User list
-    ✓ Loan applications
-    ✓ Approval/rejection counts
-    ✓ Creates demo data
+    ✓ Total registered users
+    ✓ Total loan applications
+    ✓ Breakdown of approved vs. rejected loans
+    ✓ Count of applications by loan type
 
 
 ┌───────────────────────────────────────────────────────────────────────────────┐
 │ METHOD 3: DIRECT DATABASE ACCESS (ADVANCED) 🔧                               │
 └───────────────────────────────────────────────────────────────────────────────┘
 
-Using Python:
+Using Supabase SQL Editor:
 ─────────────
-Create a file (e.g., check_loans.py) with:
+1. Go to your Supabase project dashboard.
+2. Navigate to the "SQL Editor".
+3. Run a query to inspect the data directly, for example:
 
-    import sqlite3
-    
-    conn = sqlite3.connect('loan_verification.db')
-    cursor = conn.cursor()
-    
-    # View all loans
-    cursor.execute('SELECT * FROM loans ORDER BY created_at DESC')
-    loans = cursor.fetchall()
-    
-    for loan in loans:
-        print(f"ID: {loan[0]}, Email: {loan[1]}, Type: {loan[2]}, "
-              f"Amount: ₹{loan[3]}, Status: {loan[6]}")
-    
-    conn.close()
-
-Then run: python check_loans.py
+   SELECT id, email, loan_type, amount, status FROM loans ORDER BY created_at DESC;
 
 
 ┌───────────────────────────────────────────────────────────────────────────────┐
@@ -170,9 +141,7 @@ Loan Types:
 │ QUICK REFERENCE COMMANDS                                                      │
 └───────────────────────────────────────────────────────────────────────────────┘
 
-View all data:              python view_database.py
-Manage database:            python database_manager.py
-Check database status:      python check_db.py
+View database stats:        python supabase_manager.py
 Start web application:      python app.py
 Open in browser:            http://127.0.0.1:5000/loan_data
 

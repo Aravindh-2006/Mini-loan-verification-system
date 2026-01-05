@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Loan Type</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 2rem;
+        }
+        .top-nav {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        .top-nav a {
+            color: #007bff;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 2rem;
+        }
+        h1 {
+            color: #1c2b4d;
+        }
+        .emi-calculator-link {
+            background-color: #e9f5ff;
+            border: 1px solid #b3d7ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .emi-calculator-link p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .loan-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .loan-card {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .loan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .loan-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <span><i class="fas fa-user-circle"></i> {{ session.get('email') }}</span>
+        <a href="{{ url_for('loan_data') }}"><i class="fas fa-list-alt"></i> My Applications</a>
+        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Select a Loan Type</h1>
+            <p>Select the type of loan you wish to apply for.</p>
+        </div>
+
+        <div class="emi-calculator-link">
+            <p>Planning your finances? <a href="{{ url_for('emi_calculator') }}"><strong>Try our EMI Calculator</strong></a> to estimate your monthly payments before you apply.</p>
+        </div>
+
+        <div class="loan-options">
+            <a href="{{ url_for('loan_form', loan_type='agriculture') }}" class="loan-card">
+                <div class="icon">🌾</div>
+                <h3>Agriculture Loan</h3>
+            </a>
+            <a href="{{ url_for('loan_form', loan_type='home') }}" class="loan-card">
+                <div class="icon">🏠</div>
+                <h3>Home Loan</h3>
+            </a>
+            <a href="{{ url_for('loan_form', loan_type='education') }}" class="loan-card">
+                <div class="icon">🎓</div>
+                <h3>Education Loan</h3>
+            </a>
+            <a href="{{ url_for('loan_form', loan_type='business') }}" class="loan-card">
+                <div class="icon">💼</div>
+                <h3>Business Loan</h3>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
