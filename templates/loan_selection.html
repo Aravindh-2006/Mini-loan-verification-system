@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Selection - Mini Loan Verification System{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h2 class="display-5 fw-bold text-primary">
+        <i class="fas fa-handshake me-3"></i>Choose Your Loan Type
+    </h2>
+    <p class="lead text-muted">Select the type of loan you want to apply for</p>
+</div>
+
+<div class="row g-4">
+    <!-- Agriculture Loan -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card loan-type-card h-100" onclick="selectLoan('agriculture')">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-seedling fa-4x text-success"></i>
+                </div>
+                <h5 class="card-title">Agriculture Loan</h5>
+                <p class="card-text text-muted">
+                    For farmers and agricultural activities. Supports crop cultivation, equipment purchase, and farm development.
+                </p>
+                <div class="mt-auto">
+                    <div class="badge bg-success mb-2">Up to ₹10 Lakhs</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-check me-1"></i>Land ownership required<br>
+                        <i class="fas fa-check me-1"></i>Min income: ₹15,000/month
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Loan -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card loan-type-card h-100" onclick="selectLoan('home')">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-home fa-4x text-info"></i>
+                </div>
+                <h5 class="card-title">Home Loan</h5>
+                <p class="card-text text-muted">
+                    For purchasing, constructing, or renovating residential properties. Flexible repayment options available.
+                </p>
+                <div class="mt-auto">
+                    <div class="badge bg-info mb-2">Up to ₹50 Lakhs</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-check me-1"></i>Property documents required<br>
+                        <i class="fas fa-check me-1"></i>Min income: ₹30,000/month
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Education Loan -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card loan-type-card h-100" onclick="selectLoan('education')">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-graduation-cap fa-4x text-warning"></i>
+                </div>
+                <h5 class="card-title">Education Loan</h5>
+                <p class="card-text text-muted">
+                    For higher education expenses including tuition fees, books, and living expenses during studies.
+                </p>
+                <div class="mt-auto">
+                    <div class="badge bg-warning mb-2">Up to ₹5 Lakhs</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-check me-1"></i>Admission letter required<br>
+                        <i class="fas fa-check me-1"></i>Min income: ₹20,000/month
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Loan -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card loan-type-card h-100" onclick="selectLoan('business')">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-briefcase fa-4x text-danger"></i>
+                </div>
+                <h5 class="card-title">Business Loan</h5>
+                <p class="card-text text-muted">
+                    For business expansion, working capital, equipment purchase, and other business-related expenses.
+                </p>
+                <div class="mt-auto">
+                    <div class="badge bg-danger mb-2">Up to ₹20 Lakhs</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-check me-1"></i>Business registration required<br>
+                        <i class="fas fa-check me-1"></i>Min income: ₹50,000/month
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-info-circle me-2"></i>Important Information
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Required Documents:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Aadhaar Card (Identity Proof)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Bank Statements (6-12 months)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Income Certificate</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Loan-specific documents</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">General Requirements:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Valid bank account</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Credit history check</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Age: 18-65 years</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Indian citizenship</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function selectLoan(loanType) {
+    window.location.href = `/loan_form/${loanType}`;
+}
+</script>
+{% endblock %}
+
+

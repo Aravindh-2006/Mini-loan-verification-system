@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Applications - Mini Loan Verification System</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: bold; color: #2c3e50 !important; }
+        .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: none; margin-bottom: 20px; }
+        .btn-primary { background-color: #3498db; border-color: #3498db; }
+        .btn-primary:hover { background-color: #2980b9; border-color: #2980b9; }
+        .table { font-size: 0.9rem; }
+        .badge { font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('loan_selection') }}">
+                <i class="fas fa-university me-2"></i>Mini Loan Verification System
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user me-1"></i>{{ user_email }}
+                </span>
+                <a class="nav-link" href="{{ url_for('loan_data') }}">
+                    <i class="fas fa-database me-1"></i>My Applications
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary">
+                <i class="fas fa-database me-2"></i>
+                {% if user_email == 'kit27.ad05@gmail.com' %}
+                    All Loan Applications
+                {% else %}
+                    My Loan Applications
+                {% endif %}
+            </h2>
+            <span class="badge bg-primary fs-6">Total: {{ loans|length }}</span>
+        </div>
+
+        {% if loans %}
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ loans|selectattr('6', 'equalto', 'approved')|list|length }}</h4>
+                                    <p class="mb-0">Approved</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-check-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ loans|selectattr('6', 'equalto', 'rejected')|list|length }}</h4>
+                                    <p class="mb-0">Rejected</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-times-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>₹{{ "{:,}".format(loans|sum(attribute='3')) }}</h4>
+                                    <p class="mb-0">Total Amount</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-rupee-sign fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>₹{{ "{:,}".format((loans|sum(attribute='3') / loans|length)|int) }}</h4>
+                                    <p class="mb-0">Avg Amount</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-calculator fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Applications Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    {% if user_email == 'kit27.ad05@gmail.com' %}
+                                        <th>Email</th>
+                                    {% endif %}
+                                    <th>Loan Type</th>
+                                    <th>Amount</th>
+                                    <th>Income</th>
+                                    <th>Liabilities</th>
+                                    <th>Status</th>
+                                    <th>Reason</th>
+                                    <th>Documents</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for loan in loans %}
+                                <tr>
+                                    <td><strong>#{{ loan[0] }}</strong></td>
+                                    {% if user_email == 'kit27.ad05@gmail.com' %}
+                                        <td><i class="fas fa-envelope me-1"></i>{{ loan[1] }}</td>
+                                    {% endif %}
+                                    <td>
+                                        {% if loan[2] == 'agriculture' %}
+                                            <span class="badge bg-success"><i class="fas fa-seedling me-1"></i>Agriculture</span>
+                                        {% elif loan[2] == 'home' %}
+                                            <span class="badge bg-info"><i class="fas fa-home me-1"></i>Home</span>
+                                        {% elif loan[2] == 'education' %}
+                                            <span class="badge bg-warning"><i class="fas fa-graduation-cap me-1"></i>Education</span>
+                                        {% elif loan[2] == 'business' %}
+                                            <span class="badge bg-danger"><i class="fas fa-briefcase me-1"></i>Business</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>₹{{ "{:,}".format(loan[3]) }}</strong></td>
+                                    <td>₹{{ "{:,}".format(loan[4]) }}</td>
+                                    <td>
+                                        {% if loan[5] <= 3 %}
+                                            <span class="badge bg-success">{{ loan[5] }} loans</span>
+                                        {% elif loan[5] <= 6 %}
+                                            <span class="badge bg-warning">{{ loan[5] }} loans</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ loan[5] }} loans</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if loan[6] == 'approved' %}
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Approved</span>
+                                        {% else %}
+                                            <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><small class="text-muted">{{ loan[7] }}</small></td>
+                                    <td>
+                                        {% if loan[8] %}
+                                            <span class="badge bg-info"><i class="fas fa-file me-1"></i>{{ loan[8].split(',')|length }} files</span>
+                                        {% else %}
+                                            <span class="text-muted">No files</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><small>{{ loan[9] }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No loan applications found. <a href="{{ url_for('loan_selection') }}" class="alert-link">Apply for a loan now!</a>
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('loan_selection') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Loan Selection
+            </a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

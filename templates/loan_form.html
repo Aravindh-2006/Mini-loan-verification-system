@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+{% block title %}{{ loan_type.title() }} Loan Application - Mini Loan Verification System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-{{ 'seedling' if loan_type == 'agriculture' else 'home' if loan_type == 'home' else 'graduation-cap' if loan_type == 'education' else 'briefcase' }} me-2"></i>
+                    {{ loan_type.title() }} Loan Application
+                </h4>
+            </div>
+            <div class="card-body">
+                <form id="loan-form" method="POST" action="{{ url_for('submit_loan') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="loan_type" value="{{ loan_type }}">
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Basic Information
+                            </h5>
+                        </div>
+
+                    <!-- Risk Story Extra Details (optional but recommended for better story) -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-book-open me-2"></i>Risk Story Details (Optional)
+                            </h5>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="rs_name" name="rs_name" placeholder="e.g., Rohan">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_expenses" class="form-label">Monthly Expenses (₹)</label>
+                            <input type="number" class="form-control" id="rs_expenses" name="rs_expenses" min="0" placeholder="e.g., 25000">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_emi_date" class="form-label">Preferred EMI Date</label>
+                            <input type="number" class="form-control" id="rs_emi_date" name="rs_emi_date" min="1" max="31" placeholder="1-31">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_job_type" class="form-label">Job Type</label>
+                            <select class="form-select" id="rs_job_type" name="rs_job_type">
+                                <option value="">Select (optional)</option>
+                                <option>Permanent</option>
+                                <option>Contract</option>
+                                <option>Temporary</option>
+                                <option>Seasonal</option>
+                                <option>Self-employed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_location" class="form-label">City/Location</label>
+                            <input type="text" class="form-control" id="rs_location" name="rs_location" placeholder="e.g., Chennai">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rs_purpose" class="form-label">Loan Purpose</label>
+                            <input type="text" class="form-control" id="rs_purpose" name="rs_purpose" placeholder="e.g., Home renovation">
+                        </div>
+                    </div>
+                        <div class="col-md-4">
+                            <label for="amount" class="form-label">Loan Amount (₹)</label>
+                            <input type="number" class="form-control" id="amount" name="amount" required 
+                                   min="10000" max="{{ '1000000' if loan_type == 'agriculture' else '5000000' if loan_type == 'home' else '500000' if loan_type == 'education' else '2000000' }}">
+                            <div class="form-text">Max: ₹{{ '{:,}'.format(1000000 if loan_type == 'agriculture' else 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000) }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="income" class="form-label">Monthly Income (₹)</label>
+                            <input type="number" class="form-control" id="income" name="income" required 
+                                   min="{{ '15000' if loan_type == 'agriculture' else '30000' if loan_type == 'home' else '20000' if loan_type == 'education' else '50000' }}">
+                            <div class="form-text">Min: ₹{{ '{:,}'.format(15000 if loan_type == 'agriculture' else 30000 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000) }}/month</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="liabilities" class="form-label">Number of Existing Loans</label>
+                            <input type="number" class="form-control" id="liabilities" name="liabilities" required 
+                                   min="0" max="{{ '5' if loan_type == 'agriculture' else '8' if loan_type == 'home' else '10' if loan_type == 'education' else '12' }}">
+                            <div class="form-text">Max: {{ '5' if loan_type == 'agriculture' else '8' if loan_type == 'home' else '10' if loan_type == 'education' else '12' }} loans</div>
+                        </div>
+                    </div>
+
+                    <!-- Document Upload Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-file-upload me-2"></i>Required Documents
+                            </h5>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Important:</strong> Upload all required documents. Accepted formats: PDF, JPG, PNG, DOC, DOCX
+                                <br><small class="mt-1 d-block">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    <strong>Tip:</strong> Make sure your document filenames contain relevant keywords (e.g., "land_document.pdf", "property_deed.jpg") for better validation.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if loan_type == 'agriculture' %}
+                    <!-- Agriculture Loan Documents -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="aadhaar" class="form-label">Aadhaar Card <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="aadhaar" name="aadhaar">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="land_ownership" class="form-label">Land Ownership Document <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="land_ownership" name="land_ownership">
+                            <div class="form-text">Patta / Chitta / Adangal</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="land_tax" class="form-label">Land Tax Receipt</label>
+                            <input type="file" class="form-control" id="land_tax" name="land_tax">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="crop_plan" class="form-label">Crop Plan / Cultivation Certificate</label>
+                            <input type="file" class="form-control" id="crop_plan" name="crop_plan">
+                            <div class="form-text">Required for loans > ₹10 Lakhs</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="water_source" class="form-label">Water Source Proof</label>
+                            <input type="file" class="form-control" id="water_source" name="water_source">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="income_cert" class="form-label">Income Certificate</label>
+                            <input type="file" class="form-control" id="income_cert" name="income_cert">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bank_statements" class="form-label">Bank Statements (6 months)</label>
+                            <input type="file" class="form-control" id="bank_statements" name="bank_statements">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="kisan_card" class="form-label">Kisan Credit Card</label>
+                            <input type="file" class="form-control" id="kisan_card" name="kisan_card">
+                        </div>
+                    </div>
+
+                    {% elif loan_type == 'home' %}
+                    <!-- Home Loan Documents -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="aadhaar" class="form-label">Aadhaar / PAN Card <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="aadhaar" name="aadhaar" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="property_doc" class="form-label">Property Document <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="property_doc" name="property_doc">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bank_statements" class="form-label">Bank Statements (12 months)</label>
+                            <input type="file" class="form-control" id="bank_statements" name="bank_statements" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="it_returns" class="form-label">IT Returns (2 years)</label>
+                            <input type="file" class="form-control" id="it_returns" name="it_returns">
+                            <div class="form-text">Required for loans > ₹50 Lakhs</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="salary_slip" class="form-label">Salary Slip / Employment Proof</label>
+                            <input type="file" class="form-control" id="salary_slip" name="salary_slip">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="collateral" class="form-label">Collateral Document</label>
+                            <input type="file" class="form-control" id="collateral" name="collateral">
+                        </div>
+                    </div>
+
+                    {% elif loan_type == 'education' %}
+                    <!-- Education Loan Documents -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="community_cert" class="form-label">Community Certificate</label>
+                            <input type="file" class="form-control" id="community_cert" name="community_cert">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="aadhaar" class="form-label">Aadhaar Card <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="aadhaar" name="aadhaar" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="marksheets" class="form-label">10th, 11th, 12th Marksheets</label>
+                            <input type="file" class="form-control" id="marksheets" name="marksheets">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="transfer_cert" class="form-label">Parents' Transfer Certificate</label>
+                            <input type="file" class="form-control" id="transfer_cert" name="transfer_cert">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="income_cert" class="form-label">Income Certificate</label>
+                            <input type="file" class="form-control" id="income_cert" name="income_cert" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="birth_cert" class="form-label">Birth Certificate</label>
+                            <input type="file" class="form-control" id="birth_cert" name="birth_cert">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="admission_letter" class="form-label">Admission Letter <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="admission_letter" name="admission_letter">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="guarantor_proof" class="form-label">Guarantor Proof</label>
+                            <input type="file" class="form-control" id="guarantor_proof" name="guarantor_proof">
+                            <div class="form-text">Required for loans > ₹5 Lakhs</div>
+                        </div>
+                    </div>
+
+                    {% elif loan_type == 'business' %}
+                    <!-- Business Loan Documents -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="aadhaar" class="form-label">Aadhaar / PAN Card <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="aadhaar" name="aadhaar" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="business_reg" class="form-label">Business Registration <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="business_reg" name="business_reg">
+                            <div class="form-text">Udyam/MSME/GST Certificate</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="partnership_deed" class="form-label">Partnership Deed / Company Certificate</label>
+                            <input type="file" class="form-control" id="partnership_deed" name="partnership_deed">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="gst_returns" class="form-label">GST Returns (1 year)</label>
+                            <input type="file" class="form-control" id="gst_returns" name="gst_returns">
+                            <div class="form-text">Required for loans > ₹20 Lakhs</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bank_statements" class="form-label">Bank Statements (12 months)</label>
+                            <input type="file" class="form-control" id="bank_statements" name="bank_statements" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="it_returns" class="form-label">IT Returns (2 years)</label>
+                            <input type="file" class="form-control" id="it_returns" name="it_returns" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="balance_sheet" class="form-label">Balance Sheet & P&L Statement</label>
+                            <input type="file" class="form-control" id="balance_sheet" name="balance_sheet">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="existing_loans" class="form-label">Existing Loan Statements</label>
+                            <input type="file" class="form-control" id="existing_loans" name="existing_loans">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Personalized Risk Story Output -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div id="risk-story-container" class="alert alert-secondary d-none" role="alert" style="white-space: pre-wrap;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('loan_selection') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Loan Selection
+                                </a>
+                                <button id="submit-btn" type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Application
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validation Rules Info -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-clipboard-check me-2"></i>{{ loan_type.title() }} Loan Validation Rules
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Income Requirements:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Minimum: ₹{{ '{:,}'.format(15000 if loan_type == 'agriculture' else 30000 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000) }}/month</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Below minimum = Rejection</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Loan Limits:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Maximum: ₹{{ '{:,}'.format(1000000 if loan_type == 'agriculture' else 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000) }}</li>
+                            <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>High amounts need extra documents</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Existing Loans:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Maximum: {{ '5' if loan_type == 'agriculture' else '8' if loan_type == 'home' else '10' if loan_type == 'education' else '12' }} loans</li>
+                            <li><i class="fas fa-times text-danger me-2"></i>Exceeding limit = Rejection</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Required Documents:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Identity proof (Aadhaar/PAN)</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Loan-specific documents (marked with *)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Show selected files
+document.querySelectorAll('input[type="file"]').forEach(function(input) {
+    input.addEventListener('change', function() {
+        const files = this.files;
+        if (files.length > 0) {
+            console.log(`Selected file: ${files[0].name}`);
+            // Add visual feedback
+            this.style.borderColor = '#28a745';
+            this.style.backgroundColor = '#f8fff9';
+        } else {
+            this.style.borderColor = '';
+            this.style.backgroundColor = '';
+        }
+    });
+});
+
+// Form validation + AJAX submit
+const formEl = document.getElementById('loan-form');
+const submitBtn = document.getElementById('submit-btn');
+const riskBox = document.getElementById('risk-story-container');
+
+formEl.addEventListener('submit', async function(e) {
+    const amount = parseInt(document.getElementById('amount').value);
+    const income = parseInt(document.getElementById('income').value);
+    const liabilities = parseInt(document.getElementById('liabilities').value);
+    
+    const loanType = '{{ loan_type }}';
+    
+    // Check if any files are selected
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    let hasFiles = false;
+    let selectedFiles = [];
+    
+    fileInputs.forEach(function(input) {
+        if (input.files.length > 0) {
+            hasFiles = true;
+            selectedFiles.push(input.files[0].name);
+        }
+    });
+    
+    if (!hasFiles) {
+        e.preventDefault();
+        alert('❌ Please upload at least one document before submitting.');
+        return;
+    }
+    
+    // Show selected files
+    console.log('Selected files:', selectedFiles);
+    
+    // Income validation
+    const minIncome = {{ 15000 if loan_type == 'agriculture' else 30000 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000 }};
+    if (income < minIncome) {
+        e.preventDefault();
+        alert(`❌ Rejected: Low income. Minimum required: ₹${minIncome.toLocaleString()}/month`);
+        return;
+    }
+    
+    // Liabilities validation
+    const maxLiabilities = {{ 5 if loan_type == 'agriculture' else 8 if loan_type == 'home' else 10 if loan_type == 'education' else 12 }};
+    if (liabilities > maxLiabilities) {
+        e.preventDefault();
+        alert(`❌ Rejected: Too many existing loans. Maximum allowed: ${maxLiabilities}`);
+        return;
+    }
+    
+    // Amount validation
+    const maxAmount = {{ 1000000 if loan_type == 'agriculture' else 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000 }};
+    if (amount > maxAmount) {
+        e.preventDefault();
+        alert(`❌ Rejected: Loan amount exceeds maximum limit of ₹${maxAmount.toLocaleString()}`);
+        return;
+    }
+    
+    // Show confirmation
+    const confirmMessage = `You are about to submit:\n` +
+                          `- Loan Type: ${loanType.charAt(0).toUpperCase() + loanType.slice(1)}\n` +
+                          `- Amount: ₹${amount.toLocaleString()}\n` +
+                          `- Income: ₹${income.toLocaleString()}/month\n` +
+                          `- Existing Loans: ${liabilities}\n` +
+                          `- Files: ${selectedFiles.length} document(s)\n\n` +
+                          `Continue with submission?`;
+    
+    if (!confirm(confirmMessage)) {
+        e.preventDefault();
+        return;
+    }
+
+    // AJAX submit starts here
+    e.preventDefault();
+    submitBtn.disabled = true;
+    riskBox.classList.add('d-none');
+    riskBox.textContent = '';
+    try {
+        const fd = new FormData(formEl);
+        const resp = await fetch(formEl.action, {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const result = await resp.json();
+        // Show server feedback
+        if (result.status !== 'approved') {
+            alert(`Server response: ${result.status.toUpperCase()} - ${result.reason}`);
+        }
+
+        // Prepare payload for risk story
+        const payload = {
+            name: document.getElementById('rs_name').value || 'Customer',
+            income: document.getElementById('income').value,
+            expenses: document.getElementById('rs_expenses').value || 0,
+            loan_amount: document.getElementById('amount').value,
+            emi_date: document.getElementById('rs_emi_date').value || '1',
+            job_type: document.getElementById('rs_job_type').value || 'Unknown',
+            location: document.getElementById('rs_location').value || '',
+            purpose: document.getElementById('rs_purpose').value || loanType
+        };
+
+        const storyResp = await fetch('{{ url_for('api_generate_risk_story') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const storyData = await storyResp.json();
+        riskBox.classList.remove('d-none');
+        riskBox.classList.remove('alert-secondary');
+        riskBox.classList.add('alert-info');
+        riskBox.innerHTML = `<strong>Your Personalized Loan Risk Story</strong><br/>${storyData.story}`;
+    } catch (err) {
+        console.error('AJAX submit error:', err);
+        alert('An error occurred while submitting or generating the risk story.');
+    } finally {
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

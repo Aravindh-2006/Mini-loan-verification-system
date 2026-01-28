@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        h1 {
+            color: #1c2b4d;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-bottom: 1rem;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e9f5ff;
+            border-left: 5px solid #007bff;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .story-result {
+            background-color: #f8f9fa;
+            border-left-color: #6c757d;
+            font-style: italic;
+            color: #333;
+        }
+        .result h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #0056b3;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        .result-item span:first-child {
+            color: #555;
+        }
+        .result-item span:last-child {
+            font-weight: 600;
+            color: #1c2b4d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-calculator"></i> EMI Calculator</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="principal">Loan Amount (₹)</label>
+                <input type="number" id="principal" name="principal" value="{{ principal or '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="rate">Annual Interest Rate (%)</label>
+                <input type="number" step="0.01" id="rate" name="rate" value="{{ rate or '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="tenure_months">Loan Tenure (in months)</label>
+                <input type="number" id="tenure_months" name="tenure_months" value="{{ tenure_months or '' }}" required>
+            </div>
+            <button type="submit" class="btn">Calculate EMI</button>
+            <button type="button" id="generateStoryBtn" class="btn btn-secondary">Generate Repayment Story</button>
+        </form>
+
+        {% if emi %}
+        <div class="result">
+            <h2>Loan Repayment Details</h2>
+            <div class="result-item">
+                <span>Monthly EMI</span>
+                <span>₹{{ emi }}</span>
+            </div>
+            <div class="result-item">
+                <span>Total Interest Payable</span>
+                <span>₹{{ total_interest }}</span>
+            </div>
+            <div class="result-item">
+                <span>Total Payment (Principal + Interest)</span>
+                <span>₹{{ total_payment }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="story-container" class="result story-result" style="display: none;">
+            <p id="repayment-story"></p>
+        </div>
+
+        <a href="{{ url_for('loan_selection') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Loan Selection</a>
+    </div>
+
+    <script>
+        document.getElementById('generateStoryBtn').addEventListener('click', function() {
+            const principal = document.getElementById('principal').value;
+            const rate = document.getElementById('rate').value;
+            const tenure_months = document.getElementById('tenure_months').value;
+
+            if (!principal || !rate || !tenure_months) {
+                alert('Please fill in all fields to generate the story.');
+                return;
+            }
+
+            fetch('/api/generate_repayment_story', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    loan_amount: principal,
+                    interest_rate: rate,
+                    tenure_months: tenure_months
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const storyContainer = document.getElementById('story-container');
+                const storyText = document.getElementById('repayment-story');
+                storyText.textContent = data.story;
+                storyContainer.style.display = 'block';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
