@@ -1,0 +1,9 @@
+Flask
+python-dotenv
+supabase
+gunicorn
+email-validator
+dnspython
+google-generativeai
+google-auth
+requests

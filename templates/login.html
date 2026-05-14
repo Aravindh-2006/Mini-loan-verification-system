@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Mini Loan Verification System{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa !important;
+    }
+
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+    }
+
+    .google-card {
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        padding: 48px 40px 36px;
+        max-width: 450px;
+        width: 100%;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .google-logo {
+        font-family: 'Product Sans', Arial, sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+
+    .signin-text {
+        font-size: 24px;
+        color: #202124;
+        font-weight: 400;
+        margin-bottom: 8px;
+        line-height: 1.3333;
+    }
+
+    .sub-text {
+        color: #5f6368;
+        font-size: 16px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+
+    .bank-branding {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        color: #E63946;
+        font-weight: bold;
+    }
+
+    .google-input {
+        width: 100%;
+        padding: 13px 15px;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        height: 56px;
+        font-size: 16px;
+        color: #202124;
+        transition: border .2s;
+        margin-bottom: 0;
+    }
+
+    .google-input:focus {
+        border-color: #1a73e8;
+        box-shadow: none;
+        outline: none;
+        border-width: 2px;
+        padding: 12px 14px;
+    }
+
+    .btn-google {
+        background-color: #1a73e8;
+        color: white;
+        font-weight: 500;
+        padding: 10px 24px;
+        border-radius: 4px;
+        border: none;
+        font-size: 14px;
+        letter-spacing: 0.25px;
+    }
+
+    .btn-google:hover {
+        background-color: #1b66c9;
+        box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+    }
+
+    .create-account {
+        color: #1a73e8;
+        font-weight: 500;
+        text-decoration: none;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .create-account:hover {
+        color: #174ea6;
+        background-color: rgba(66,133,244,0.04);
+        border-radius: 4px;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+        color: #70757a;
+    }
+
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dadce0;
+    }
+
+    .divider:not(:empty)::before {
+        margin-right: .5em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: .5em;
+    }
+
+    .g_id_signin {
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
+<div class="login-container">
+    <div class="google-card">
+        <div class="text-center">
+            <div class="google-logo">
+                <span style="color: #4285F4;">G</span><span style="color: #EA4335;">o</span><span
+                    style="color: #FBBC05;">o</span><span style="color: #4285F4;">g</span><span
+                    style="color: #34A853;">l</span><span style="color: #EA4335;">e</span>
+            </div>
+            <div class="bank-branding">
+                <i class="ri-bank-line"></i> Indian Bank Mini Loan
+            </div>
+            <div class="signin-text">Sign in</div>
+            <div class="sub-text">Use your Google Account or Email</div>
+        </div>
+
+        <form method="POST" id="loginForm">
+            <div id="step-email">
+                <div class="mb-4">
+                    <input type="email" class="form-control google-input" id="email" name="email" 
+                        placeholder="Email or phone" value="{{ email if email else '' }}" required>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{{ url_for('signup') }}" class="create-account p-2">Create account</a>
+                    <button type="button" id="nextBtn" class="btn btn-google">Next</button>
+                </div>
+            </div>
+
+            <div id="step-password" style="display: none;">
+                <div class="mb-2 p-2 border rounded-pill d-flex align-items-center" style="font-size: 14px; cursor: pointer;" id="switchUser">
+                    <i class="ri-user-3-fill me-2 text-muted"></i>
+                    <span id="display-email"></span>
+                    <i class="ri-arrow-down-s-line ms-auto"></i>
+                </div>
+                <div class="mb-4 mt-3">
+                    <input type="password" class="form-control google-input" id="password" name="password" 
+                        placeholder="Enter your password" required>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="#" class="create-account p-2">Forgot password?</a>
+                    <button type="submit" class="btn btn-google">Sign in</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="divider">or</div>
+
+        <div class="g-btn-container">
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <script>
+                function handleCredentialResponse(response) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ url_for('google_login') }}";
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'credential';
+                    input.value = response.credential;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            </script>
+            <div id="g_id_onload"
+                 data-client_id="{{ google_client_id }}"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="center"
+                 data-width="370">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nextBtn = document.getElementById('nextBtn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const stepEmail = document.getElementById('step-email');
+        const stepPassword = document.getElementById('step-password');
+        const displayEmail = document.getElementById('display-email');
+        const switchUser = document.getElementById('switchUser');
+
+        nextBtn.addEventListener('click', function() {
+            if (emailInput.checkValidity()) {
+                displayEmail.textContent = emailInput.value;
+                stepEmail.style.display = 'none';
+                stepPassword.style.display = 'block';
+                passwordInput.focus();
+            } else {
+                emailInput.reportValidity();
+            }
+        });
+
+        switchUser.addEventListener('click', function() {
+            stepPassword.style.display = 'none';
+            stepEmail.style.display = 'block';
+            emailInput.focus();
+        });
+
+        // Allow Enter key to trigger Next
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                nextBtn.click();
+            }
+        });
+    });
+</script>
+{% endblock %}
