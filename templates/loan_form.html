@@ -461,10 +461,10 @@
         });
         const result = await resp.json();
         // Show server feedback
+        let needRedirect = false;
         if (result.status === 'pending') {
-            alert('Your loan has been successfully submitted! Redirecting to dashboard...');
-            window.location.href = "{{ url_for('user_dashboard') }}";
-            return;
+            alert('Your loan has been successfully submitted! Generating your risk story...');
+            needRedirect = true;
         } else if (result.status !== 'approved') {
             alert(`Server response: ${result.status.toUpperCase()} - ${result.reason}`);
         }
@@ -491,6 +491,13 @@
         riskBox.classList.remove('alert-secondary');
         riskBox.classList.add('alert-info');
         riskBox.innerHTML = `<strong>Your Personalized Loan Risk Story</strong><br/>${storyData.story}`;
+        // If the loan was successfully submitted, redirect after showing story
+        if (needRedirect) {
+            // Redirect to user dashboard after a short delay (e.g., 2 seconds)
+            setTimeout(() => {
+                window.location.href = "{{ url_for('user_dashboard') }}";
+            }, 2000);
+        }
     } catch (err) {
         console.error('AJAX submit error:', err);
         alert('An error occurred while submitting or generating the risk story.');

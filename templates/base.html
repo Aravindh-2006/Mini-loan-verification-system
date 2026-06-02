@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mini Loan Verification System{% endblock %}</title>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet" />
     <style>
         .navbar-brand {
@@ -53,39 +54,60 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('loan_selection') if session.email else url_for('login') }}">
-                <i class="ri-bank-line me-2"></i>Mini Loan Verification System
-            </a>
-            {% if session.email %}
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    <i class="ri-user-line me-1"></i>{{ session.email }}
-                </span>
-                <a class="nav-link" href="{{ url_for('user_dashboard') }}">
-                    {% if session.email == admin_email %}
-                    <i class="ri-dashboard-3-line me-1"></i>Admin Dashboard
-                    {% else %}
-                    <i class="ri-dashboard-2-line me-1"></i>My Dashboard
-                    {% endif %}
-                </a>
-                <a class="nav-link" href="{{ url_for('logout') }}">
-                    <i class="ri-logout-box-r-line me-1"></i>Logout
-                </a>
-            </div>
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('loan_selection') if session.email else url_for('login') }}">
+      <i class="ri-bank-line me-2"></i>Mini Loan Verification System
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      {% if session.email %}
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <span class="navbar-text me-3"><i class="ri-user-line me-1"></i>{{ session.email }}</span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('user_dashboard') }}">
+            {% if session.email == admin_email %}
+            <i class="ri-dashboard-3-line me-1"></i>Admin Dashboard
+            {% else %}
+            <i class="ri-dashboard-2-line me-1"></i>My Dashboard
             {% endif %}
-        </div>
-    </nav>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}"><i class="ri-logout-box-r-line me-1"></i>Logout</a>
+        </li>
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+</nav>
 
     <div class="container mt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show"
-            role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <script>
+              // Auto hide flash messages after 2 seconds
+              document.addEventListener('DOMContentLoaded', function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                  setTimeout(function() {
+                    // Use Bootstrap's fade out class
+                    alert.classList.remove('show');
+                    // Remove from DOM after transition (300ms default)
+                    setTimeout(() => alert.remove(), 300);
+                  }, 2000);
+                });
+              });
+            </script>
         {% endfor %}
         {% endif %}
         {% endwith %}

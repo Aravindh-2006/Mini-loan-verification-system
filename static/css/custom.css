@@ -1,0 +1,88 @@
+/* custom.css - responsive overrides */
+:root {
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+}
+
+body {
+  overflow-x: hidden;
+  font-size: 1rem;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Utility container padding for small screens */
+@media (max-width: 425px) {
+  .container-fluid {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+  }
+}
+
+/* Card layout adjustments */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+/* Table responsiveness overrides */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Navbar tweaks */
+@media (max-width: 768px) {
+  .navbar .navbar-nav {
+    text-align: center;
+  }
+}
+
+@media (max-width: 425px) {
+  .signup-container {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+}
+
+/* ------------------- Signup Page Responsive Styles ------------------- */
+/* Ensure the signup card takes full width on small screens */
+@media (max-width: 425px) {
+  .signup-container {
+    padding: 0 var(--spacing-sm);
+  }
+  .google-card {
+    max-width: 100%;
+    padding: 2rem 1rem;
+    margin: 0;
+  }
+  .google-input {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+  .btn-google {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  .login-link {
+    display: block;
+    text-align: center;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+/* Adjust spacing for mid-size tablets */
+@media (min-width: 426px) and (max-width: 768px) {
+  .google-card {
+    max-width: 90%;
+    padding: 3rem 2rem;
+  }
+}

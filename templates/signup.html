@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     body {
-        background-color: #f8f9fa !important;
+        background-color: var(--color-bg) !important;
     }
 
     .signup-container {
@@ -16,12 +16,12 @@
     }
 
     .google-card {
-        border: 1px solid #dadce0;
+        border: 1px solid var(--color-primary-light);
         border-radius: 8px;
         padding: 48px 40px 36px;
         max-width: 450px;
         width: 100%;
-        background: white;
+        background: var(--color-surface);
         box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     }
 
@@ -31,18 +31,19 @@
         font-weight: bold;
         margin-bottom: 10px;
         letter-spacing: -0.5px;
+        color: var(--color-primary);
     }
 
     .signin-text {
         font-size: 24px;
-        color: #202124;
+        color: var(--color-text-primary);
         font-weight: 400;
         margin-bottom: 8px;
         line-height: 1.3333;
     }
 
     .sub-text {
-        color: #5f6368;
+        color: var(--color-text-muted);
         font-size: 16px;
         margin-bottom: 40px;
         line-height: 1.5;
@@ -51,17 +52,17 @@
     .google-input {
         width: 100%;
         padding: 13px 15px;
-        border: 1px solid #dadce0;
+        border: 1px solid var(--color-primary-light);
         border-radius: 4px;
         height: 56px;
         font-size: 16px;
-        color: #202124;
+        color: var(--color-text-primary);
         transition: border .2s;
         margin-bottom: 20px;
     }
 
     .google-input:focus {
-        border-color: #1a73e8;
+        border-color: var(--color-primary);
         box-shadow: none;
         outline: none;
         border-width: 2px;
@@ -69,8 +70,8 @@
     }
 
     .btn-google {
-        background-color: #1a73e8;
-        color: white;
+        background-color: var(--color-primary);
+        color: var(--color-surface);
         font-weight: 500;
         padding: 10px 24px;
         border-radius: 4px;
@@ -80,12 +81,12 @@
     }
 
     .btn-google:hover {
-        background-color: #1b66c9;
+        background-color: var(--color-primary-dark);
         box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
     }
 
     .login-link {
-        color: #1a73e8;
+        color: var(--color-primary);
         font-weight: 500;
         text-decoration: none;
         font-size: 14px;
@@ -93,7 +94,7 @@
     }
 
     .login-link:hover {
-        background-color: rgba(66,133,244,0.04);
+        background-color: rgba(0, 173, 166, 0.04);
         border-radius: 4px;
     }
 </style>
