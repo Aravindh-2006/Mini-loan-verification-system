@@ -15,11 +15,15 @@ img, video, canvas, svg {
   height: auto;
 }
 
-/* Utility container padding for small screens */
+/* Force container-fluid to have tight padding on very small screens */
 @media (max-width: 425px) {
   .container-fluid {
-    padding-left: var(--spacing-sm);
-    padding-right: var(--spacing-sm);
+    padding-left: var(--spacing-sm) !important;
+    padding-right: var(--spacing-sm) !important;
+  }
+  .container {
+    padding-left: var(--spacing-md) !important;
+    padding-right: var(--spacing-md) !important;
   }
 }
 
@@ -30,59 +34,42 @@ img, video, canvas, svg {
   }
 }
 
-/* Table responsiveness overrides */
+/* Table responsiveness overrides: ensure columns don't get squished */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Navbar tweaks */
-@media (max-width: 768px) {
+.table-responsive table {
+  min-width: 750px; /* Prevents columns from compressing on mobile */
+}
+
+/* Navbar responsive alignment */
+@media (max-width: 991px) {
   .navbar .navbar-nav {
     text-align: center;
+    margin-top: 1rem;
   }
-}
-
-@media (max-width: 425px) {
-  .signup-container {
-    flex-direction: column;
-    width: 100%;
-    padding: 0 var(--spacing-sm);
+  .navbar .nav-item {
+    margin-bottom: 0.5rem;
   }
-}
-
-/* ------------------- Signup Page Responsive Styles ------------------- */
-/* Ensure the signup card takes full width on small screens */
-@media (max-width: 425px) {
-  .signup-container {
-    padding: 0 var(--spacing-sm);
-  }
-  .google-card {
-    max-width: 100%;
-    padding: 2rem 1rem;
-    margin: 0;
-  }
-  .google-input {
-    margin-bottom: var(--spacing-sm);
-    font-size: 0.9rem;
-    padding: 10px 12px;
-  }
-  .btn-google {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
-  .login-link {
+  .navbar-text {
     display: block;
-    text-align: center;
-    margin-top: var(--spacing-sm);
+    margin-bottom: 0.5rem;
   }
 }
 
-/* Adjust spacing for mid-size tablets */
-@media (min-width: 426px) and (max-width: 768px) {
-  .google-card {
-    max-width: 90%;
-    padding: 3rem 2rem;
+/* ------------------- Form & Layout Responsive Utilities ------------------- */
+@media (max-width: 576px) {
+  .btn-mobile-full {
+    width: 100% !important;
+    margin-bottom: 0.5rem;
+  }
+  .flex-column-mobile {
+    flex-direction: column !important;
+  }
+  .w-sm-100 {
+    width: 100% !important;
   }
 }

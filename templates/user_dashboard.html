@@ -4,20 +4,20 @@
 
 {% block content %}
 <div class="container-fluid px-4">
-    <div class="row align-items-center mb-4">
-        <div class="col">
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-12 col-md">
             <h2 class="text-primary fw-bold">
                 <i class="ri-dashboard-3-line me-2"></i>My Dashboard
             </h2>
-            <div class="d-flex align-items-center">
-                <p class="text-muted mb-0 me-3">Welcome back, {{ user_email }}</p>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <p class="text-muted mb-0">Welcome back, {{ user_email }}</p>
                 <button onclick="location.reload()" class="btn btn-sm btn-outline-secondary rounded-pill">
                     <i class="ri-refresh-line me-1"></i>Refresh Updates
                 </button>
             </div>
         </div>
-        <div class="col-auto">
-            <a href="{{ url_for('loan_selection') }}" class="btn btn-primary btn-lg shadow-sm">
+        <div class="col-12 col-md-auto text-md-end">
+            <a href="{{ url_for('loan_selection') }}" class="btn btn-primary btn-lg shadow-sm w-100 w-md-auto">
                 <i class="ri-add-line me-1"></i>New Loan Application
             </a>
         </div>
@@ -26,7 +26,7 @@
     {% if loans %}
     <!-- Statistics Row -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card glass-card shadow-sm rounded-4 h-100 p-3 animate-in stagger-1">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded-4 me-3">
@@ -39,7 +39,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card glass-card shadow-sm rounded-4 h-100 p-3 animate-in stagger-2">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded-4 me-3">
@@ -52,7 +52,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card glass-card shadow-sm rounded-4 h-100 p-3 animate-in stagger-3">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded-4 me-3">
@@ -66,7 +66,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card glass-card shadow-sm rounded-4 h-100 p-3 animate-in stagger-4">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 bg-danger bg-opacity-10 p-3 rounded-4 me-3">
@@ -155,7 +155,7 @@
     {% for loan in loans %}
     <div class="offcanvas offcanvas-end border-0 shadow-lg rounded-start-4" tabindex="-1" id="offcanvas-{{ loan.id }}"
         aria-labelledby="offcanvasLabel-{{ loan.id }}"
-        style="width: 400px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+        style="max-width: 100%; width: 400px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
         <div class="offcanvas-header bg-primary text-white p-4">
             <h5 class="offcanvas-title fw-bold" id="offcanvasLabel-{{ loan.id }}">
                 <i class="ri-file-info-line me-2"></i>Application #{{ loan.id }}

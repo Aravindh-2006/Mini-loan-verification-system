@@ -6,7 +6,9 @@
 <div class="container py-5 text-center">
   <h1 class="display-4 fw-bold mb-4">Welcome to Mini Loan Verification System</h1>
   <p class="lead mb-5">Apply for agriculture, home, education, or business loans in just a few clicks. Secure, fast, and transparent.</p>
-  <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">Login</a>
-  <a href="{{ url_for('signup') }}" class="btn btn-outline-secondary btn-lg">Create Account</a>
+  <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 align-items-center">
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg w-sm-100">Login</a>
+    <a href="{{ url_for('signup') }}" class="btn btn-outline-secondary btn-lg w-sm-100">Create Account</a>
+  </div>
 </div>
 {% endblock %}

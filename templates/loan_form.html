@@ -69,7 +69,7 @@
                                     placeholder="e.g., Home renovation">
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-3">
                             <label for="amount" class="form-label">Loan Amount (₹)</label>
                             <input type="number" class="form-control" id="amount" name="amount" required min="10000"
                                 max="{{ '1000000' if loan_type == 'agriculture' else '5000000' if loan_type == 'home' else '500000' if loan_type == 'education' else '2000000' }}">
@@ -77,14 +77,14 @@
                                 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000) }}
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-3">
                             <label for="income" class="form-label">Monthly Income (₹)</label>
                             <input type="number" class="form-control" id="income" name="income" required
                                 min="{{ '15000' if loan_type == 'agriculture' else '30000' if loan_type == 'home' else '20000' if loan_type == 'education' else '50000' }}">
                             <div class="form-text">Min: ₹{{ '{:,}'.format(15000 if loan_type == 'agriculture' else 30000
                                 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000) }}/month</div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-3">
                             <label for="liabilities" class="form-label">Number of Existing Loans</label>
                             <input type="number" class="form-control" id="liabilities" name="liabilities" required
                                 min="0"
@@ -287,11 +287,11 @@
                     <!-- Submit Buttons -->
                     <div class="row mt-4">
                         <div class="col-12">
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('loan_selection') }}" class="btn btn-secondary">
+                            <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                                <a href="{{ url_for('loan_selection') }}" class="btn btn-secondary w-sm-100">
                                     <i class="ri-arrow-left-line me-2"></i>Back to Loan Selection
                                 </a>
-                                <button id="submit-btn" type="submit" class="btn btn-primary btn-lg">
+                                <button id="submit-btn" type="submit" class="btn btn-primary btn-lg w-sm-100">
                                     <i class="ri-send-plane-fill me-2"></i>Submit Application
                                 </button>
                             </div>
