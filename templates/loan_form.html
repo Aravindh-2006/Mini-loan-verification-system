@@ -276,14 +276,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- Personalized Risk Story Output -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div id="risk-story-container" class="alert alert-secondary d-none" role="alert"
-                                style="white-space: pre-wrap;"></div>
-                        </div>
-                    </div>
-
                     <!-- Submit Buttons -->
                     <div class="row mt-4">
                         <div class="col-12">
@@ -299,6 +291,89 @@
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     AI Risk Story Modal — shown after successful submit
+     User must click "Go to Dashboard" to proceed.
+     ══════════════════════════════════════════════════ -->
+<div class="modal fade" id="riskStoryModal" tabindex="-1" aria-labelledby="riskStoryModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+
+            <!-- Header -->
+            <div class="modal-header text-white border-0 py-4 px-4"
+                style="background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.2);
+                                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-checkbox-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0 fw-bold" id="riskStoryModalLabel">
+                            Application Submitted Successfully
+                        </h5>
+                        <small style="opacity:0.85;">Your personalized loan risk analysis is ready</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body px-4 py-4">
+
+                <!-- Submission confirmation badge -->
+                <div class="d-flex align-items-center gap-2 mb-4 p-3 rounded-3"
+                    style="background:#e8f5e9;border:1px solid #c8e6c9;">
+                    <i class="ri-bank-line text-success fs-5"></i>
+                    <span class="text-success fw-semibold small">
+                        Your loan application has been received and is now
+                        <strong>Pending Admin Review</strong>.
+                        You will be notified via email once a decision is made.
+                    </span>
+                </div>
+
+                <!-- AI story section -->
+                <div id="modal-story-loading" class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status" style="width:2rem;height:2rem;"></div>
+                    <p class="text-muted mt-2 mb-0 small">Generating your personalized risk story…</p>
+                </div>
+
+                <div id="modal-story-content" class="d-none">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge rounded-pill px-3 py-2"
+                            style="background:linear-gradient(135deg,#1a73e8,#0d47a1);font-size:0.78rem;">
+                            <i class="ri-sparkling-line me-1"></i>AI-Powered Risk Analysis
+                        </span>
+                    </div>
+                    <div id="modal-story-text"
+                        style="background:#f8faff;border:1px solid #dde8ff;border-radius:0.75rem;
+                               padding:1.25rem 1.5rem;font-size:1rem;line-height:1.75;color:#1a1a2e;
+                               white-space:pre-wrap;"></div>
+                </div>
+
+                <div id="modal-story-error" class="d-none">
+                    <div class="alert alert-warning border-0 rounded-3 py-2 small mb-0">
+                        <i class="ri-information-line me-1"></i>
+                        Risk story could not be generated right now, but your application was submitted successfully.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-end gap-2">
+                <a href="{{ url_for('loan_selection') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="ri-add-line me-1"></i>Apply for Another Loan
+                </a>
+                <a id="go-to-dashboard-btn" href="{{ url_for('user_dashboard') }}"
+                    class="btn btn-primary rounded-pill px-5 fw-semibold shadow-sm">
+                    <i class="ri-dashboard-2-line me-1"></i>Go to My Dashboard
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
@@ -359,13 +434,10 @@
 
 {% block scripts %}
 <script>
-    // Show selected files
+    // ── File input visual feedback ────────────────────────────────────────────
     document.querySelectorAll('input[type="file"]').forEach(function (input) {
         input.addEventListener('change', function () {
-            const files = this.files;
-            if (files.length > 0) {
-                console.log(`Selected file: ${files[0].name}`);
-                // Add visual feedback
+            if (this.files.length > 0) {
                 this.style.borderColor = '#28a745';
                 this.style.backgroundColor = '#f8fff9';
             } else {
@@ -375,135 +447,135 @@
         });
     });
 
-    // Form validation + AJAX submit
-    const formEl = document.getElementById('loan-form');
+    // ── Constants from Jinja ─────────────────────────────────────────────────
+    const loanType    = '{{ loan_type }}';
+    const minIncome   = {{ 15000 if loan_type == 'agriculture' else 30000 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000 }};
+    const maxLiab     = {{ 5 if loan_type == 'agriculture' else 8 if loan_type == 'home' else 10 if loan_type == 'education' else 12 }};
+    const maxAmount   = {{ 1000000 if loan_type == 'agriculture' else 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000 }};
+    const storyApiUrl = '{{ url_for("api_generate_risk_story") }}';
+
+    // ── Modal elements ───────────────────────────────────────────────────────
+    const riskModal        = new bootstrap.Modal(document.getElementById('riskStoryModal'));
+    const modalLoading     = document.getElementById('modal-story-loading');
+    const modalContent     = document.getElementById('modal-story-content');
+    const modalStoryText   = document.getElementById('modal-story-text');
+    const modalError       = document.getElementById('modal-story-error');
+
+    // ── Form submit handler ──────────────────────────────────────────────────
+    const formEl    = document.getElementById('loan-form');
     const submitBtn = document.getElementById('submit-btn');
-    const riskBox = document.getElementById('risk-story-container');
 
     formEl.addEventListener('submit', async function (e) {
-        const amount = parseInt(document.getElementById('amount').value);
-        const income = parseInt(document.getElementById('income').value);
+        e.preventDefault();
+
+        const amount      = parseInt(document.getElementById('amount').value);
+        const income      = parseInt(document.getElementById('income').value);
         const liabilities = parseInt(document.getElementById('liabilities').value);
 
-        const loanType = '{{ loan_type }}';
-
-        // Check if any files are selected
-        const fileInputs = document.querySelectorAll('input[type="file"]');
-        let hasFiles = false;
+        // ── Client-side validation ────────────────────────────────────────
+        const fileInputs  = document.querySelectorAll('input[type="file"]');
+        let hasFiles      = false;
         let selectedFiles = [];
-
-        fileInputs.forEach(function (input) {
-            if (input.files.length > 0) {
-                hasFiles = true;
-                selectedFiles.push(input.files[0].name);
-            }
+        fileInputs.forEach(inp => {
+            if (inp.files.length > 0) { hasFiles = true; selectedFiles.push(inp.files[0].name); }
         });
 
         if (!hasFiles) {
-            e.preventDefault();
             alert('❌ Please upload at least one document before submitting.');
             return;
         }
-
-        // Show selected files
-        console.log('Selected files:', selectedFiles);
-
-        // Income validation
-        const minIncome = {{ 15000 if loan_type == 'agriculture' else 30000 if loan_type == 'home' else 20000 if loan_type == 'education' else 50000
-    }};
-    if (income < minIncome) {
-        e.preventDefault();
-        alert(`❌ Rejected: Low income. Minimum required: ₹${minIncome.toLocaleString()}/month`);
-        return;
-    }
-
-    // Liabilities validation
-    const maxLiabilities = {{ 5 if loan_type == 'agriculture' else 8 if loan_type == 'home' else 10 if loan_type == 'education' else 12 }};
-    if (liabilities > maxLiabilities) {
-        e.preventDefault();
-        alert(`❌ Rejected: Too many existing loans. Maximum allowed: ${maxLiabilities}`);
-        return;
-    }
-
-    // Amount validation
-    const maxAmount = {{ 1000000 if loan_type == 'agriculture' else 5000000 if loan_type == 'home' else 500000 if loan_type == 'education' else 2000000 }};
-    if (amount > maxAmount) {
-        e.preventDefault();
-        alert(`❌ Rejected: Loan amount exceeds maximum limit of ₹${maxAmount.toLocaleString()}`);
-        return;
-    }
-
-    // Show confirmation
-    const confirmMessage = `You are about to submit:\n` +
-        `- Loan Type: ${loanType.charAt(0).toUpperCase() + loanType.slice(1)}\n` +
-        `- Amount: ₹${amount.toLocaleString()}\n` +
-        `- Income: ₹${income.toLocaleString()}/month\n` +
-        `- Existing Loans: ${liabilities}\n` +
-        `- Files: ${selectedFiles.length} document(s)\n\n` +
-        `Continue with submission?`;
-
-    if (!confirm(confirmMessage)) {
-        e.preventDefault();
-        return;
-    }
-
-    // AJAX submit starts here
-    e.preventDefault();
-    submitBtn.disabled = true;
-    riskBox.classList.add('d-none');
-    riskBox.textContent = '';
-    try {
-        const fd = new FormData(formEl);
-        const resp = await fetch(formEl.action, {
-            method: 'POST',
-            body: fd,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        const result = await resp.json();
-        // Show server feedback
-        let needRedirect = false;
-        if (result.status === 'pending') {
-            alert('Your loan has been successfully submitted! Generating your risk story...');
-            needRedirect = true;
-        } else if (result.status !== 'approved') {
-            alert(`Server response: ${result.status.toUpperCase()} - ${result.reason}`);
+        if (income < minIncome) {
+            alert(`❌ Rejected: Low income. Minimum required: ₹${minIncome.toLocaleString()}/month`);
+            return;
+        }
+        if (liabilities > maxLiab) {
+            alert(`❌ Rejected: Too many existing loans. Maximum allowed: ${maxLiab}`);
+            return;
+        }
+        if (amount > maxAmount) {
+            alert(`❌ Rejected: Loan amount exceeds maximum limit of ₹${maxAmount.toLocaleString()}`);
+            return;
         }
 
-        // Prepare payload for risk story
-        const payload = {
-            name: document.getElementById('rs_name').value || 'Customer',
-            income: document.getElementById('income').value,
-            expenses: document.getElementById('rs_expenses').value || 0,
-            loan_amount: document.getElementById('amount').value,
-            emi_date: document.getElementById('rs_emi_date').value || '1',
-            job_type: document.getElementById('rs_job_type').value || 'Unknown',
-            location: document.getElementById('rs_location').value || '',
-            purpose: document.getElementById('rs_purpose').value || loanType
-        };
+        // ── Confirmation dialog ───────────────────────────────────────────
+        const confirmMsg =
+            `You are about to submit:\n` +
+            `• Loan Type : ${loanType.charAt(0).toUpperCase() + loanType.slice(1)}\n` +
+            `• Amount    : ₹${amount.toLocaleString()}\n` +
+            `• Income    : ₹${income.toLocaleString()}/month\n` +
+            `• Existing Loans: ${liabilities}\n` +
+            `• Documents : ${selectedFiles.length} file(s)\n\n` +
+            `Continue with submission?`;
+        if (!confirm(confirmMsg)) return;
 
-        const storyResp = await fetch('{{ url_for('api_generate_risk_story') }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const storyData = await storyResp.json();
-        riskBox.classList.remove('d-none');
-        riskBox.classList.remove('alert-secondary');
-        riskBox.classList.add('alert-info');
-        riskBox.innerHTML = `<strong>Your Personalized Loan Risk Story</strong><br/>${storyData.story}`;
-        // If the loan was successfully submitted, redirect after showing story
-        if (needRedirect) {
-            // Redirect to user dashboard after a short delay (e.g., 2 seconds)
-            setTimeout(() => {
-                window.location.href = "{{ url_for('user_dashboard') }}";
-            }, 2000);
+        // ── Disable button & start AJAX submit ────────────────────────────
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting…';
+
+        try {
+            const fd = new FormData(formEl);
+            const resp = await fetch(formEl.action, {
+                method : 'POST',
+                body   : fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const result = await resp.json();
+
+            if (result.status !== 'pending' && result.status !== 'approved') {
+                // Server rejected — show alert and stay on page
+                alert(`❌ ${result.status.toUpperCase()}: ${result.reason}`);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="ri-send-plane-fill me-2"></i>Submit Application';
+                return;
+            }
+
+            // ── Open the modal immediately (loading state) ────────────────
+            modalLoading.classList.remove('d-none');
+            modalContent.classList.add('d-none');
+            modalError.classList.add('d-none');
+            riskModal.show();
+
+            // ── Now fetch the AI risk story in the background ─────────────
+            const payload = {
+                name       : document.getElementById('rs_name').value     || 'Customer',
+                income     : document.getElementById('income').value,
+                expenses   : document.getElementById('rs_expenses').value || 0,
+                loan_amount: document.getElementById('amount').value,
+                emi_date   : document.getElementById('rs_emi_date').value  || '1',
+                job_type   : document.getElementById('rs_job_type').value  || 'Unknown',
+                location   : document.getElementById('rs_location').value  || '',
+                purpose    : document.getElementById('rs_purpose').value   || loanType
+            };
+
+            try {
+                const storyResp = await fetch(storyApiUrl, {
+                    method : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body   : JSON.stringify(payload)
+                });
+                const storyData = await storyResp.json();
+
+                modalLoading.classList.add('d-none');
+
+                if (storyData.story) {
+                    modalStoryText.textContent = storyData.story;
+                    modalContent.classList.remove('d-none');
+                } else {
+                    modalError.classList.remove('d-none');
+                }
+            } catch (_) {
+                modalLoading.classList.add('d-none');
+                modalError.classList.remove('d-none');
+            }
+
+        } catch (err) {
+            console.error('Submission error:', err);
+            alert('❌ An error occurred while submitting your application. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="ri-send-plane-fill me-2"></i>Submit Application';
         }
-    } catch (err) {
-        console.error('AJAX submit error:', err);
-        alert('An error occurred while submitting or generating the risk story.');
-    } finally {
-        submitBtn.disabled = false;
-    }
-});
+        // Note: button stays disabled intentionally — user is in the modal
+        // and should navigate away, not resubmit.
+    });
 </script>
 {% endblock %}
