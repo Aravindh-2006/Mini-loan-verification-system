@@ -698,17 +698,46 @@ def api_generate_risk_story():
         loan_amount = int(str(data.get('loan_amount') or 0))
     except Exception:
         loan_amount = 0
-    emi_date = str(data.get('emi_date') or '1')
-    job_type = str(data.get('job_type') or 'Unknown')
-    location = str(data.get('location') or 'your area')
-    purpose = str(data.get('purpose') or 'personal needs')
+    try:
+        liabilities_val = int(str(data.get('liabilities') or 0))
+    except Exception:
+        liabilities_val = 0
+    emi_date     = str(data.get('emi_date')   or '1')
+    job_type     = str(data.get('job_type')   or 'Unknown')
+    location     = str(data.get('location')   or 'your area')
+    purpose      = str(data.get('purpose')    or 'personal needs')
+    loan_type_val = str(data.get('loan_type') or 'personal')
 
     gemini_api_key = os.getenv('GEMINI_API_KEY')
     if gemini_api_key:
         try:
             genai.configure(api_key=gemini_api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
-            prompt = f"Write a short, engaging, 3-sentence loan risk summary for a customer named {name} living in {location}. They are applying for a loan of ₹{loan_amount} for {purpose}. Their monthly income is ₹{income} and expenses are ₹{expenses}. Their job type is {job_type} and EMI due date is {emi_date}. Talk about their monthly buffer and if they can afford it, giving practical advice. Do not use markdown."
+            disposable_preview = max(income - expenses, 0)
+            monthly_emi_approx = round(loan_amount / 60) if loan_amount else 0  # rough 5-year estimate
+            prompt = (
+                f"You are a bank loan advisor in India. Analyse the following customer profile and write a "
+                f"clear, honest, 4-sentence personalised loan risk story. "
+                f"Use plain English, no markdown, no bullet points.\n\n"
+                f"Customer Profile:\n"
+                f"- Name: {name}\n"
+                f"- Location: {location}\n"
+                f"- Loan Type: {loan_type_val} loan\n"
+                f"- Loan Amount Requested: ₹{loan_amount:,}\n"
+                f"- Purpose: {purpose}\n"
+                f"- Monthly Income: ₹{income:,}\n"
+                f"- Monthly Expenses: ₹{expenses:,}\n"
+                f"- Monthly Disposable Income: ₹{disposable_preview:,}\n"
+                f"- Approximate Monthly EMI (5-yr): ₹{monthly_emi_approx:,}\n"
+                f"- Existing Active Loans: {liabilities_val}\n"
+                f"- Job Type: {job_type}\n"
+                f"- Preferred EMI Date: {emi_date}\n\n"
+                f"Cover: (1) whether the income comfortably supports the EMI, "
+                f"(2) risk level based on existing loans and job stability, "
+                f"(3) one practical financial tip specific to their situation, "
+                f"(4) a brief encouraging closing line. "
+                f"Do not use markdown or symbols."
+            )
             response = model.generate_content(prompt)
             if response.text:
                 return jsonify({'story': response.text.strip()})
@@ -717,7 +746,7 @@ def api_generate_risk_story():
 
     # Fallback to deterministic logic
     disposable = max(income - expenses, 0)
-    burden = (loan_amount / 12) if loan_amount else 0
+    burden = (loan_amount / 60) if loan_amount else 0   # rough 5-year EMI estimate
     ratio = (burden / disposable) if disposable else 1.0
     if ratio < 0.3:
         risk = 'Low'
@@ -726,26 +755,32 @@ def api_generate_risk_story():
     else:
         risk = 'High'
 
-    festival_hint = 'Consider festival and seasonal expenses in ' + location + '. '
-    emi_hint = f"Your EMI due around date {emi_date} may clash with monthly bills. "
-    suggestion = 'Try keeping 2–3 months EMI buffer and reduce discretionary spends.'
     factors = []
     if expenses > income * 0.6:
-        factors.append('high monthly expenses')
+        factors.append('high monthly expenses relative to income')
     if loan_amount > income * 20:
         factors.append('loan amount is large relative to income')
     if job_type.lower() in ['contract', 'temporary', 'seasonal']:
-        factors.append('income stability')
-    factors_text = ', '.join(factors) if factors else 'current income and expense pattern'
+        factors.append(f'income stability concerns due to {job_type.lower()} employment')
+    if liabilities_val >= 3:
+        factors.append(f'{liabilities_val} existing active loans increasing debt burden')
+    factors_text = ', '.join(factors) if factors else 'a generally manageable financial profile'
+
+    if risk == 'High':
+        tip = f'We recommend reducing existing liabilities before taking on a new {loan_type_val} loan.'
+    elif risk == 'Medium':
+        tip = f'Try to build a 3-month EMI buffer in savings before the first payment is due.'
+    else:
+        tip = f'You appear well-positioned for this {loan_type_val} loan — maintain your current savings habit.'
 
     story = (
-        f"Hi {name}, based on your profile in {location} and a requested loan of ₹{loan_amount:,} for {purpose}, "
-        f"your risk level looks {risk}. "
-        f"Key factors are {factors_text}. "
-        f"{festival_hint}"
-        f"{emi_hint}"
-        f"With income of ₹{income:,} and expenses of ₹{expenses:,}, your monthly buffer is about ₹{disposable:,}. "
-        f"{suggestion}"
+        f"Hi {name}, based on your {loan_type_val} loan request of ₹{loan_amount:,} for {purpose} in {location}, "
+        f"your overall risk level is assessed as {risk}. "
+        f"Key factors identified: {factors_text}. "
+        f"With a monthly income of ₹{income:,} and expenses of ₹{expenses:,}, your disposable income is "
+        f"approximately ₹{disposable:,} and your estimated monthly EMI would be around ₹{int(burden):,}. "
+        f"{tip} "
+        f"Your preferred EMI date is the {emi_date}th — plan your monthly budget around that date to avoid late payments."
     )
     return jsonify({'story': story})
 
